@@ -108,7 +108,6 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 - ### Parseable.limitParser 
 
 - ### Parseable.skipParser
-
 >        input: 123
 >        output: 123
 >
