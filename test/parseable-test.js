@@ -1276,6 +1276,20 @@ describe('parseable MiddleWare', function(){
         assert.equal(undefined,parseable(req,null,next));
       });
 
+      var param8 = {foo:"foo"};
+      var expect8 = {foo:"foo", where:{},"sort":{},"limit":defaultValues.filterLimit,"skip":0};
+      it(JSON.stringify(param8)+" to "+JSON.stringify(expect8), function(){
+        var req = {};
+        req.query = param8;
+
+        var next = function(err){
+          should.not.exist(err);
+          should.exist(req.query);
+          assert.equal(JSON.stringify(req.query),JSON.stringify(expect8));
+        };
+        assert.equal(undefined,parseable(req,null,next));
+      });
+
     });
   });
 });

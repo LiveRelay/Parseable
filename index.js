@@ -586,7 +586,7 @@ var filterMiddleware = function(req, res, next){
       }
     }
   }
-
+  
   if(req.query && Object.getOwnPropertyNames(req.query).length >= 0){
     var _filterNames = ['where','sort','limit','skip'];
     for (var _index in _filterNames){
@@ -601,15 +601,15 @@ var filterMiddleware = function(req, res, next){
       }
     }
 
-    if(Object.getOwnPropertyNames(req.query).length > 4){
-      var _unknownProperties = [];
-      for (var _property in req.query){
-        if(req.query.hasOwnProperty(_property) && _filterNames.indexOf(_property) === -1){
-          _unknownProperties.push(_property);
-          return next('unknown properties:'+_unknownProperties);
-        }
-      }
-    }
+    // if(Object.getOwnPropertyNames(req.query).length > 4){
+    //   var _unknownProperties = [];
+    //   for (var _property in req.query){
+    //     if(req.query.hasOwnProperty(_property) && _filterNames.indexOf(_property) === -1){
+    //       _unknownProperties.push(_property);
+    //       return next('unknown properties:'+_unknownProperties);
+    //     }
+    //   }
+    // }
 
     whereParser(req.query.where,function(err,result){
       if(err) return next(err+': where');
