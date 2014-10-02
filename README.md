@@ -23,21 +23,33 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
     
   router.get('/', function(req, res, next) {
     //raw request:
-    console.log(req.query);//{"where":{"a1":{"b1":{"c1":{$gt:10}}}},"sort":{},"limit":100,"skip":0,"keys":"a,b,-c"}
+    console.log(req.query);//{"where":{"a1":{"b1":{"c1":{$gt:10}}}},"sort":{},"skip":0,"keys":"a,b,-c"}
     next();
   });
   
   router.get('/', parseable, function(req, res) {
     //after:
-    console.log(req.query);//{"where":{"a1.b1.c1":{$gt:10}},"sort":{},"limit":100,"skip":0,"keys":{a:1,b:1,c:0}}
+    console.log(req.query);//{"where":{"a1.b1.c1":{$gt:10}},"sort":{},"limit":200,"skip":0,"keys":{a:1,b:1,c:0}}
   });
 ```
 
+### default values
+If req.query does't contain property "limit", Parseble will add it to req.query with value 200.<br />
+<br />
+The default value can be changed, e.g.:
+```javascript
+  var defaultValues = require('parseable').defaultValues; 
+  defaultValues.limit = 100;
+```
+<br />
+<br />
 ## Parseable functions
 
 ### Parseable.operationParser
 
 ```javascript
+  var operationParser = require('parseable').operationParser; 
+  
   var input = {"field":{"__op": "Increment", "amount": 1234}};
 
   operationParser(input,function(err,output){
@@ -67,6 +79,7 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 
 ### Parseable.whereParser:
 ```javascript
+  var whereParser = require('parseable').whereParser; 
   var input = {"a1":{"b1":{"c1":1}}};
 
   whereParser(input,function(err,output){
@@ -91,6 +104,8 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 ### Parseable.sortParser :
 
 ```javascript
+  var sortParser = require('parseable').sortParser; 
+
   var input = {"a1":{"b1":{"c1":1}}};
 
   sortParser(input,function(err,output){
@@ -120,6 +135,9 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 ### Parseable.skipParser
 
 ```javascript
+  var limitParser = require('parseable').limitParser; 
+  var skipParser = require('parseable').skipParser; 
+  
   var input = 123;
 
   limitParser(input,function(err,output){
