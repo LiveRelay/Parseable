@@ -14,7 +14,7 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 - parse req.body with operationParser
 
 ### filterMiddleware
-- parse req.query with whereParser, sortParser, limitParser and skipParser in sequence
+- parse req.query with whereParser, sortParser, limitParser, skipParser, and keysParser in sequence
 
 ### default values
 If req.query does't contain property "limit", Parseble will add it to req.query with value 200.<br />
