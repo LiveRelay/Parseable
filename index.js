@@ -5,12 +5,12 @@
  **/
 
 var defaultValues = {
-  _filterLimit: 200,
-  set filterLimit(value){
-    this._filterLimit = value;
+  _limit: 200,
+  set limit(value){
+    this._limit = value;
   },
-  get filterLimit(){
-    return this._filterLimit;
+  get limit(){
+    return this._limit;
   }
 }
 
@@ -480,7 +480,7 @@ var filterMiddleware = function(req, res, next){
     for (var _index in _filterNames){
       if(!req.query.hasOwnProperty(_filterNames[_index])){
         if(_filterNames[_index] === 'limit'){
-          req.query[_filterNames[_index]] = defaultValues.filterLimit;
+          req.query[_filterNames[_index]] = defaultValues.limit;
         }else if(_filterNames[_index] === 'skip'){
           req.query[_filterNames[_index]] = 0;
         }else if(_filterNames[_index] === 'keys'){

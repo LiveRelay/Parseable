@@ -1246,7 +1246,7 @@ describe('parseable MiddleWare', function(){
   describe('Filter',function(){
     describe('All Operation', function(){
       var param1 = {where:{a1:{b1:{c1:1}}}};
-      var expect1 = {"where":{"a1.b1.c1":1},"sort":{},"limit":defaultValues.filterLimit,"skip":0,"keys":{}};
+      var expect1 = {"where":{"a1.b1.c1":1},"sort":{},"limit":defaultValues.limit,"skip":0,"keys":{}};
       it(JSON.stringify(param1) +" to "+JSON.stringify(expect1), function(){
         var req = {};
         req.query = param1;
@@ -1259,7 +1259,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param2 = {sort:{a:{b:{c:-1}}}};
-      var expect2 = {"sort":{"a.b.c":-1},"where":{},"limit":defaultValues.filterLimit,"skip":0,"keys":{}};
+      var expect2 = {"sort":{"a.b.c":-1},"where":{},"limit":defaultValues.limit,"skip":0,"keys":{}};
       it(JSON.stringify(param2)+" to "+JSON.stringify(expect2), function(){
         var req = {};
         req.query = param2;
@@ -1298,7 +1298,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param5 = {};
-      var expect5 = {"where":{},"sort":{},"limit":defaultValues.filterLimit,"skip":0,"keys":{}};
+      var expect5 = {"where":{},"sort":{},"limit":defaultValues.limit,"skip":0,"keys":{}};
       it(JSON.stringify(param5)+" to "+JSON.stringify(expect5), function(){
         var req = {};
         req.query = param5;
@@ -1335,7 +1335,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param8 = {foo:"foo"};
-      var expect8 = {foo:"foo", where:{},"sort":{},"limit":defaultValues.filterLimit,"skip":0,"keys":{}};
+      var expect8 = {foo:"foo", where:{},"sort":{},"limit":defaultValues.limit,"skip":0,"keys":{}};
       it(JSON.stringify(param8)+" to "+JSON.stringify(expect8), function(){
         var req = {};
         req.query = param8;
@@ -1349,7 +1349,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param9 = {keys:"foo,-koo"};
-      var expect9 = {"keys":{"foo":1,"koo":0},where:{},"sort":{},"limit":defaultValues.filterLimit,"skip":0};
+      var expect9 = {"keys":{"foo":1,"koo":0},where:{},"sort":{},"limit":defaultValues.limit,"skip":0};
       it(JSON.stringify(param9)+" to "+JSON.stringify(expect9), function(){
         var req = {};
         req.query = param9;
