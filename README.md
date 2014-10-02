@@ -153,13 +153,37 @@ The default value can be changed, e.g.:
 >        output: 123
 >
 >        input: 2147483649
->        output: value out of range
+>        err: value out of range
 >
 >        input: -2147483649
->        output: value out of range
+>        err: value out of range
 >
 >        input: "123a"
->        output: SyntaxError
+>        err: SyntaxError
 >
 >        input: "{limit:123}"
->        output: SyntaxError
+>        err: SyntaxError
+
+
+
+### Parseable.keysParser
+
+```javascript
+  var keysParser = require('parseable').keysParser; 
+  
+  var input = "foo,-koo";
+
+  keysParser(input,function(err,output){
+    console.log(output); // {"foo":1,"koo":0}
+  });
+
+```
+
+>        input: "a,b,c,-d"
+>        output: {a:1,b:1,c:1,d:0}
+>
+>        input: "a,b,c,,,"
+>        output: {a:1,b:1,c:1}
+>
+>        input: 123
+>        err: "SyntaxError: keys is not string"
