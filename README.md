@@ -16,6 +16,15 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 ### filterMiddleware
 - parse req.query with whereParser, sortParser, limitParser and skipParser in sequence
 
+### default values
+If req.query does't contain property "limit", Parseble will add it to req.query with value 200.<br />
+<br />
+The default value can be changed, e.g.:
+```javascript
+  var defaultValues = require('parseable').defaultValues; 
+  defaultValues.limit = 100;
+```
+
 ### Example of using Parseable as a middleware:
 ```javascript
   var parseable = require('parseable').middleware;  
@@ -31,15 +40,6 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
     //after:
     console.log(req.query);//{"where":{"a1.b1.c1":{$gt:10}},"sort":{},"limit":200,"skip":0,"keys":{a:1,b:1,c:0}}
   });
-```
-
-### default values
-If req.query does't contain property "limit", Parseble will add it to req.query with value 200.<br />
-<br />
-The default value can be changed, e.g.:
-```javascript
-  var defaultValues = require('parseable').defaultValues; 
-  defaultValues.limit = 100;
 ```
 <br />
 <br />
