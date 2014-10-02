@@ -25,9 +25,18 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
     });
 ```
 
-## Parser functions
+## Parseable functions
 
-- ### Parseable.operationParser
+### Parseable.operationParser
+
+```javascript
+  var input = {"field":{"__op": "Increment", "amount": 1234}};
+
+  operationParser(input,function(err,output){
+    console.log(output); // {$inc:{"field":1234}}
+  });
+
+```
 
  - Increment: increment a number field
 >        input:  {"field":{"__op": "Increment", "amount": 1234}}
@@ -48,39 +57,40 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 >        input: {"field":{"__op": "Delete"}}
 >        output: {$unset:{"field":""}}
 
-- ### Parseable.whereParser :
+### Parseable.whereParser:
+```javascript
+  var input = {"a1":{"b1":{"c1":1}}};
+
+  whereParser(input,function(err,output){
+    console.log(output); // {"a1.b1.c1":1}
+  });
+
+```
+
 >        input: {"a1":{"b1":{"c1":1}}}
 >        output: {"a1.b1.c1":1}
 >
 >        input: "{\"a1\":{\"b1\":{\"c1\":1}}}"
 >        output: {"a1.b1.c1":1}
 >
->        input: {"a1":{"b1":{"c1":[1,2,3]}}}
->        output: {"a1.b1.c1":[1,2,3]}
->   
->        input: {"a1":{"b1":{"c1":[1,2,3]},"b2":1}}
->        output: {"a1.b1.c1":[1,2,3],"a1.b2":1}
->
->        input: {"a1":{"b1":{"c1":[1,2,3]},"b2":1},"a2":1}
->        output: {"a1.b1.c1":[1,2,3],"a1.b2":1,"a2":1}
->
 >        input: {"a1":{"b1":{"c1":[1,2,3],"c2":"abc"},"b2":1},"a2":1}
 >        output: {"a1.b1.c1":[1,2,3],"a1.b1.c2":"abc","a1.b2":1,"a2":1}
 >
->        input: {}
->        output: {}
->   
->        input: "{aaa}"
->        output: SyntaxError
->
->        input: "{a:123}"
->        output: SyntaxError
->
 >        input: "{'a':123}"
->        output:  SyntaxError
+>        err:  SyntaxError
 
 
-- ### Parseable.sortParser :
+### Parseable.sortParser :
+
+```javascript
+  var input = {"a1":{"b1":{"c1":1}}};
+
+  sortParser(input,function(err,output){
+    console.log(output); // {"a1.b1.c1":1}
+  });
+
+```
+
 >        input: {"a1":{"b1":{"c1":1}}}
 >        output: {"a1.b1.c1":1}
 >
@@ -91,31 +101,27 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 >        output: {"a1.b1.c1":1,"a1.b2":-1,"a2":1}
 >
 >        input: {"a1":{"b1":{"c1":[1,2,3]}}}
->        output: "bad sort specification: 1,2,3"
+>        err: "bad sort specification: 1,2,3"
 >
 >        input: {"a1":{"b1":{"c1":1},"b2":0}}
->        output: "bad sort specification: 0"
+>        err: "bad sort specification: 0"
 >
->        input: {}
->        output: {}
->
->        input: "{aaa}"
->        output: "SyntaxError"
->
->        input: "{a:123}"
->        output: SyntaxError
->
->        input: "{'a':123}"
->        output: SyntaxError
 
-- ### Parseable.limitParser 
 
-- ### Parseable.skipParser
+### Parseable.limitParser 
+### Parseable.skipParser
+
+```javascript
+  var input = 123;
+
+  sortParser(input,function(err,output){
+    console.log(output); // 123
+  });
+
+```
+
 >        input: 123
 >        output: 123
->
->        input: 2147483648
->        output: 2147483648
 >
 >        input: "123"
 >        output: 123
@@ -131,11 +137,3 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 >
 >        input: "{limit:123}"
 >        output: SyntaxError
-
-
-
-### Example of using Parseable functions:
-
-    parser(input,function(err,output){
-      ...
-    });
