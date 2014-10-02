@@ -17,10 +17,13 @@ Parseable allows NodeJS developers to build REST API applications with client-dr
 - parse req.query with whereParser, sortParser, limitParser and skipParser in sequence
 
 ### Example of using Parseable as a middleware:
+```javascript
     var parseable = require('parseable').middleware;
     var router = require('express').Router();
-    router.get('/', parseable, function(req, res) {...});
-
+    router.get('/', parseable, function(req, res) {
+      //...
+    });
+```
 
 ## Parser functions
 
