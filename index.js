@@ -2,142 +2,6 @@
  *
  * Parseable
  *
- * 'Parseable' can be used as a middleware or individual parser functions as well.
-
- * 'Parseable' exported middlewares:
- *  middleware: invokes operationMiddleware and filterMiddleware in sequence.
- *  operationMiddleware: parse req.body with operationParser.
- *  filterMiddleware: parse req.body with whereParser, sortParser, limitParser and skipParser in sequence.
- *
- *  Example of using 'parseable' as a middleware:
- *
- *    var parseable = require('parseable').middleware;
- *    var router = require('express').Router();
- *    router.get('/', parseable, function(req, res) {...});
- *
- *'Parseable' exported parser functions:
- * 
- * Parseable.operationParser :
- * 
- * Increment: increment a number field
- *      input:  {"field":{"__op": "Increment", "amount": 1234}}
- *      output: {$inc:{"field":1234}}
- * 
- * Add: add objects to array field
- *      input: {"field":{"__op": "Add", "objects": [1,2,3]}}
- *      output: {$pushAll:{"field":[1,2,3]}}
- * 
- * AddUnique: add objects if not existed.
- *      input: {"field":{"__op": "AddUnique", "objects": [1,2,3]}}
- *      output: {$addToSet:{"field":{$each:[1,2,3]}}}
- * 
- * Remove: remove objects from array field
- *      input: {"field":{"__op": "Remove", "objects": [1,2,3]}}
- *      output: {$pullAll:{"field":[1,2,3]}}
- * 
- * Delete: delete a field.
- *      input: {"field":{"__op": "Delete"}}
- *      output: {$unset:{"field":""}}
- * 
- * 
- * 
- * 
- * Parseable.whereParser :
- * 
- * The Where Parser
- *     input: {"a1":{"b1":{"c1":1}}} 
- *     output: {"a1.b1.c1":1} 
- *
- *     input: "{\"a1\":{\"b1\":{\"c1\":1}}}" 
- *     output: {"a1.b1.c1":1} 
- *
- *     input: {"a1":{"b1":{"c1":[1,2,3]}}} 
- *     output: {"a1.b1.c1":[1,2,3]}
- *
- *     input: {"a1":{"b1":{"c1":[1,2,3]},"b2":1}} 
- *     output: {"a1.b1.c1":[1,2,3],"a1.b2":1} 
- *
- *     input: {"a1":{"b1":{"c1":[1,2,3]},"b2":1},"a2":1} 
- *     output: {"a1.b1.c1":[1,2,3],"a1.b2":1,"a2":1} 
- *
- *     input: {"a1":{"b1":{"c1":[1,2,3],"c2":"abc"},"b2":1},"a2":1} 
- *     output: {"a1.b1.c1":[1,2,3],"a1.b1.c2":"abc","a1.b2":1,"a2":1} 
- *
- *     input: {} 
- *     output: {} 
- *
- *     input: "{aaa}" 
- *     output: SyntaxError 
- *
- *     input: "{a:123}" 
- *     output: SyntaxError 
- *
- *     input: "{'a':123}" 
- *     output:  SyntaxError 
- * 
- * 
- * 
- * 
- * Parseable.sortParser :
- *
- * The Sort Parser
- *     input: {"a1":{"b1":{"c1":1}}} 
- *     output: {"a1.b1.c1":1} 
- *
- *     input: "{\"a1\":{\"b1\":{\"c1\":1}}}"
- *     output: {"a1.b1.c1":1} 
- *
- *     input: {"a1":{"b1":{"c1":1},"b2":-1},"a2":1} 
- *     output: {"a1.b1.c1":1,"a1.b2":-1,"a2":1} 
- *
- *     input: {"a1":{"b1":{"c1":[1,2,3]}}} 
- *     output: "bad sort specification: 1,2,3" 
- *
- *     input: {"a1":{"b1":{"c1":1},"b2":0}} 
- *     output: "bad sort specification: 0" 
- *
- *     input: {} 
- *     output: {} 
- *
- *     input: "{aaa}" 
- *     output: "SyntaxError" 
- *
- *     input: "{a:123}" 
- *     output: SyntaxError 
- *
- *     input: "{'a':123}" 
- *     output: SyntaxError 
- *
- * 
- * 
- * 
- * 
- * Parseable.limitParser :
- * Parseable.skipParser :
- *
- * The Limit Parser
- * The Skip Parser
- *
- *     input: 123 
- *     output: 123
- *
- *     input: 2147483648 
- *     output: 2147483648
- *
- *     input: "123" 
- *     output: 123
- *
- *     input: 2147483649 
- *     output: value out of range
- *
- *     input: -2147483649 
- *     output: value out of range
- *
- *     input: "123a" 
- *     output: SyntaxError
- *
- *     input: "{limit:123}" 
- *     output: SyntaxError
  **/
 
 var defaultValues = {
@@ -500,6 +364,30 @@ var limitParser = function(param,callback){
 
 var skipParser = limitParser;
 
+var keysParser = function(param,callback){
+
+  if((typeof param) != 'string') return callback('SyntaxError: keys is not string');
+
+  var output = {};
+  var keys = param.split(',');
+  for(var i in keys){
+    var key = keys[i];
+    if(key.length >1){
+      if(key[0] === '-'){
+        output[key.substring(1)] = 0;
+      }else{
+        output[key] = 1;
+      }
+    }else{
+       if(key.length === 0) continue;
+
+       output[key] = 1;
+    }
+  }
+
+  return callback(null,output);
+}
+
 var operationParser = function(params,callback){
 
   parseDocument(params,function(err,result){
@@ -588,13 +476,15 @@ var filterMiddleware = function(req, res, next){
   }
   
   if(req.query && Object.getOwnPropertyNames(req.query).length >= 0){
-    var _filterNames = ['where','sort','limit','skip'];
+    var _filterNames = ['where','sort','limit','skip','keys'];
     for (var _index in _filterNames){
       if(!req.query.hasOwnProperty(_filterNames[_index])){
         if(_filterNames[_index] === 'limit'){
           req.query[_filterNames[_index]] = defaultValues.filterLimit;
         }else if(_filterNames[_index] === 'skip'){
           req.query[_filterNames[_index]] = 0;
+        }else if(_filterNames[_index] === 'keys'){
+          req.query[_filterNames[_index]] = "";
         }else{
           req.query[_filterNames[_index]] = {};
         }
@@ -620,14 +510,20 @@ var filterMiddleware = function(req, res, next){
         limitParser(req.query.limit,function(err,result){
           if(err) return next(err +': limit');
           req.query.limit = result;
+
           skipParser(req.query.skip,function(err,result){
-            if(err) return next(err) +': skip';
+            if(err) return next(err +': skip');
             req.query.skip = result;
-            if(arguments[3]){
-              return arguments[3](req, res, next);
-            }else{
-              return next();
-            }
+
+            keysParser(req.query.keys,function(err,result){
+              if(err) return next(err +': keys');
+              req.query.keys = result;
+              if(arguments[3]){
+                return arguments[3](req, res, next);
+              }else{
+                return next();
+              }
+            });
           });
         });
       });
@@ -649,5 +545,6 @@ exports.whereParser = whereParser;
 exports.sortParser = sortParser;
 exports.limitParser = limitParser;
 exports.skipParser = skipParser;
+exports.keysParser = keysParser;
 exports.middleware = parseableMiddleware;
 exports.defaultValues = defaultValues;

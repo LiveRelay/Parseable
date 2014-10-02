@@ -14,6 +14,7 @@ var whereParser = require('../index').whereParser;
 var sortParser = require('../index').sortParser;
 var limitParser = require('../index').limitParser;
 var skipParser = require('../index').skipParser;
+var keysParser = require('../index').keysParser;
 var defaultValues = require('../index').defaultValues;
 
 describe('operationParser', function(){
@@ -765,6 +766,63 @@ describe('parseable.skipParser', function(){
   });
 });
 
+
+describe('parseable.keysParser', function(){
+
+  var param1 = "a,b,c,-d";
+  var output1 = {a:1,b:1,c:1,d:0};
+  it(JSON.stringify(param1) +" to " + JSON.stringify(output1), function(){
+    assert.equal(undefined,keysParser(param1,function(err,syntax){
+      should.exist(syntax);
+      should.not.exist(err);
+      assert.equal(JSON.stringify(syntax), JSON.stringify(output1));
+    }));
+  });
+
+  var param2 = "a,b,c,,,";
+  var output2 = {a:1,b:1,c:1};
+  it(JSON.stringify(param2) +" to " + JSON.stringify(output2), function(){
+    assert.equal(undefined,keysParser(param2,function(err,syntax){
+      should.exist(syntax);
+      should.not.exist(err);
+      assert.equal(JSON.stringify(syntax), JSON.stringify(output2));
+    }));
+  });
+
+  var param3 = "a,b,-";
+  var output3 = {a:1,b:1,"-":1};
+  it(JSON.stringify(param3) +" to " + JSON.stringify(output3), function(){
+    assert.equal(undefined,keysParser(param3,function(err,syntax){
+      should.exist(syntax);
+      should.not.exist(err);
+      assert.equal(JSON.stringify(syntax), JSON.stringify(output3));
+    }));
+  });
+
+  var param4 = "";
+  var output4 = {};
+  it(JSON.stringify(param4) +" to " + JSON.stringify(output4), function(){
+    assert.equal(undefined,keysParser(param4,function(err,syntax){
+      should.exist(syntax);
+      should.not.exist(err);
+      assert.equal(JSON.stringify(syntax), JSON.stringify(output4));
+    }));
+  });
+
+  var param7 = 123;
+  var errorMsg7 = "SyntaxError: keys is not string";
+  it(JSON.stringify(param7) +" should return " + errorMsg7, function(){
+    assert.equal(undefined,keysParser(param7,function(err,syntax){
+      should.exist(err);
+      should.not.exist(syntax);
+      assert.equal(err, errorMsg7);
+    }));
+  });
+
+});
+
+
+
 /***
  *
  * parseable MiddleWare
@@ -1188,7 +1246,7 @@ describe('parseable MiddleWare', function(){
   describe('Filter',function(){
     describe('All Operation', function(){
       var param1 = {where:{a1:{b1:{c1:1}}}};
-      var expect1 = {"where":{"a1.b1.c1":1},"sort":{},"limit":defaultValues.filterLimit,"skip":0};
+      var expect1 = {"where":{"a1.b1.c1":1},"sort":{},"limit":defaultValues.filterLimit,"skip":0,"keys":{}};
       it(JSON.stringify(param1) +" to "+JSON.stringify(expect1), function(){
         var req = {};
         req.query = param1;
@@ -1201,7 +1259,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param2 = {sort:{a:{b:{c:-1}}}};
-      var expect2 = {"sort":{"a.b.c":-1},"where":{},"limit":defaultValues.filterLimit,"skip":0};
+      var expect2 = {"sort":{"a.b.c":-1},"where":{},"limit":defaultValues.filterLimit,"skip":0,"keys":{}};
       it(JSON.stringify(param2)+" to "+JSON.stringify(expect2), function(){
         var req = {};
         req.query = param2;
@@ -1214,7 +1272,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param3 = {sort:{a:{b:{c:-1}}}, limit:200,skip:100};
-      var expect3 = {"sort":{"a.b.c":-1},"limit":200,"skip":100,"where":{}};
+      var expect3 = {"sort":{"a.b.c":-1},"limit":200,"skip":100,"where":{},"keys":{}};
       it(JSON.stringify(param3)+" to "+JSON.stringify(expect3), function(){
         var req = {};
         req.query = param3;
@@ -1226,8 +1284,8 @@ describe('parseable MiddleWare', function(){
         assert.equal(undefined,parseable(req,null,next));
       });
 
-      var param4 = {"where":{"a1":{"b1":{"c1":{$gt:10}}}},"sort":{},"limit":100,"skip":0};
-      var expect4 = {"where":{"a1.b1.c1":{$gt:10}},"sort":{},"limit":100,"skip":0};
+      var param4 = {"where":{"a1":{"b1":{"c1":{$gt:10}}}},"sort":{},"limit":100,"skip":0,"keys":"a,b,-c"};
+      var expect4 = {"where":{"a1.b1.c1":{$gt:10}},"sort":{},"limit":100,"skip":0,"keys":{a:1,b:1,c:0}};
       it(JSON.stringify(param4)+" to "+JSON.stringify(expect4), function(){
         var req = {};
         req.query = param4;
@@ -1240,7 +1298,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param5 = {};
-      var expect5 = {"where":{},"sort":{},"limit":defaultValues.filterLimit,"skip":0};
+      var expect5 = {"where":{},"sort":{},"limit":defaultValues.filterLimit,"skip":0,"keys":{}};
       it(JSON.stringify(param5)+" to "+JSON.stringify(expect5), function(){
         var req = {};
         req.query = param5;
@@ -1277,7 +1335,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param8 = {foo:"foo"};
-      var expect8 = {foo:"foo", where:{},"sort":{},"limit":defaultValues.filterLimit,"skip":0};
+      var expect8 = {foo:"foo", where:{},"sort":{},"limit":defaultValues.filterLimit,"skip":0,"keys":{}};
       it(JSON.stringify(param8)+" to "+JSON.stringify(expect8), function(){
         var req = {};
         req.query = param8;
@@ -1286,6 +1344,20 @@ describe('parseable MiddleWare', function(){
           should.not.exist(err);
           should.exist(req.query);
           assert.equal(JSON.stringify(req.query),JSON.stringify(expect8));
+        };
+        assert.equal(undefined,parseable(req,null,next));
+      });
+
+      var param9 = {keys:"foo,-koo"};
+      var expect9 = {"keys":{"foo":1,"koo":0},where:{},"sort":{},"limit":defaultValues.filterLimit,"skip":0};
+      it(JSON.stringify(param9)+" to "+JSON.stringify(expect9), function(){
+        var req = {};
+        req.query = param9;
+
+        var next = function(err){
+          should.not.exist(err);
+          should.exist(req.query);
+          assert.equal(JSON.stringify(req.query),JSON.stringify(expect9));
         };
         assert.equal(undefined,parseable(req,null,next));
       });
