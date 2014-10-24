@@ -42,6 +42,39 @@ The default value can be changed, e.g.:
   });
 ```
 <br />
+```javascript
+  var parseable = require('parseable').middleware;  
+  var router = require('express').Router();
+    
+  router.put('/', function(req, res, next) {
+    //raw request:
+    console.log(req.body);//{"field":{"__op": "Increment", "amount": 1234}}
+    next();
+  });
+  
+  router.put('/', parseable, function(req, res) {
+    //after:
+    console.log(req.body);//{$inc:{"field":1234}}
+  });
+```
+<br />
+Multiple Operation:
+```javascript
+  var parseable = require('parseable').middleware;  
+  var router = require('express').Router();
+    
+  router.put('/', function(req, res, next) {
+    //raw request:
+    console.log(req.body);//{"field":{"sub_field1":{"__op": "Remove", "objects": {"a":1}},"sub_field2":{"__op": "Increment", "amount": 1234}}, "field2":{"__op": "AddUnique", "objects": [1,2,3]}}
+    next();
+  });
+  
+  router.put('/', parseable, function(req, res) {
+    //after:
+    console.log(req.body);//{"$pull":{"field.sub_field1":{"a":1}},"$inc":{"field.sub_field2":1234},"$addToSet":{"field2":{"$each":[1,2,3]}}}
+  });
+```
+<br />
 <br />
 ## Parseable functions
 
