@@ -1336,6 +1336,21 @@ describe('parseable MiddleWare', function(){
         };
         assert.equal(undefined,parseable(req,null,next));
       });
+
+      var param5 = {"field":{"sub_field1":{"__op": "Remove", "objects": {"a":1}},"sub_field2":{"__op": "Increment", "amount": 1234}}, "field2":{"__op": "AddUnique", "objects": [1,2,3]}};
+      var expect5 = {"$pull":{"field.sub_field1":{"a":1}},"$inc":{"field.sub_field2":1234},"$addToSet":{"field2":{"$each":[1,2,3]}}};
+      it(JSON.stringify(param5), function(){
+        var req = {};
+        req.body = param5;
+        var next = function(err){
+          console.log("\n\n\n123:");
+          console.log(req.body);
+          should.not.exist(err);
+          should.exist(req.body);
+          assert.equal(JSON.stringify(req.body),JSON.stringify(expect5));
+        };
+        assert.equal(undefined,parseable(req,null,next));
+      });
     });
 
     describe('Unknown Operation', function(){
