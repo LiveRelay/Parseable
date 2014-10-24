@@ -65,7 +65,7 @@ Multiple Operation:
     
   router.put('/', function(req, res, next) {
     //raw request:
-    console.log(req.body);//{"field":{"sub_field1":{"__op": "Remove", "objects": {"a":1}},"sub_field2":{"__op": "Increment", "amount": 1234}}, "field2":{"__op": "AddUnique", "objects": [1,2,3]}}
+    console.log(req.body);//{"field":{"sub_field1":{"__op": "Remove", "object": {"a":1}},"sub_field2":{"__op": "Increment", "amount": 1234}}, "field2":{"__op": "AddUnique", "objects": [1,2,3]}}
     next();
   });
   
@@ -104,7 +104,7 @@ Multiple Operation:
 >        output: {$addToSet:{"field":{$each:[1,2,3]}}}
 
  - Remove: removes from an existing array all instances of a value or values that match a specified query
->        input: {"field":{"__op": "Remove", "objects": {"a":1}}}
+>        input: {"field":{"__op": "Remove", "object": {"a":1}}}
 >        output: {$pull:{"field":{"a":1}}}
 
  - RemoveAll: remove objects from array field

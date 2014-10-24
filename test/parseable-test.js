@@ -190,7 +190,7 @@ describe('operationParser', function(){
 
 
   describe('Remove', function(){
-    var param1 = {"field":{"__op": "Remove", "objects": {a:1}}};
+    var param1 = {"field":{"__op": "Remove", "object": {a:1}}};
     it(param1, function(){
       assert.equal(undefined,operationParser(param1,function(err,syntax){
         should.not.exist(err);
@@ -199,7 +199,7 @@ describe('operationParser', function(){
       }));
     });
 
-    var param2 = '{"field":{"__op": "Remove", "objects": {"a":1}}}';
+    var param2 = '{"field":{"__op": "Remove", "object": {"a":1}}}';
     it(param2, function(){
       assert.equal(undefined,operationParser(param2,function(err,syntax){
         should.not.exist(err);
@@ -208,8 +208,8 @@ describe('operationParser', function(){
       }));
     });
 
-    var param3 = '{"field":{"__op": "Remove", "objects":[1,2,3] }}';
-    var errorMsg3 = "'objects' is not Object: [1,2,3]";
+    var param3 = '{"field":{"__op": "Remove", "object":[1,2,3] }}';
+    var errorMsg3 = "'object' is not Object: [1,2,3]";
     it(param3  + " should return error", function(){
       assert.equal(undefined,operationParser(param3,function(err,syntax){
         should.exist(err);
@@ -219,7 +219,7 @@ describe('operationParser', function(){
     });
 
     var param4 = '{"field":{"__op": "Remove", "abc": 123}}';
-    var errorMsg4 = "no property 'objects': {\"__op\":\"Remove\",\"abc\":123}";
+    var errorMsg4 = "no property 'object': {\"__op\":\"Remove\",\"abc\":123}";
     it(param4  + " should return error", function(){
       assert.equal(undefined,operationParser(param4,function(err,syntax){
         should.exist(err);
@@ -1104,7 +1104,7 @@ describe('parseable MiddleWare', function(){
     });
 
     describe('Remove', function(){
-      var param1 = '{"field":{"__op": "Remove", "objects": {"a":1} }}';
+      var param1 = '{"field":{"__op": "Remove", "object": {"a":1} }}';
       it(param1, function(){
         var req = {};
         req.body = param1;
@@ -1116,7 +1116,7 @@ describe('parseable MiddleWare', function(){
         assert.equal(undefined,parseable(req,null,next));
       });
 
-      var param2 = {"field":{"__op": "Remove", "objects": {"a":1} }};
+      var param2 = {"field":{"__op": "Remove", "object": {"a":1} }};
       it(param2, function(){
         var req = {};
         req.body = param2;
@@ -1129,8 +1129,8 @@ describe('parseable MiddleWare', function(){
 
       });
 
-      var param3 = '{"field":{"__op": "Remove", "objects": 123}}';
-      var errorMsg3 = "'objects' is not Object: {\"__op\":\"Remove\",\"objects\":123}";
+      var param3 = '{"field":{"__op": "Remove", "object": 123}}';
+      var errorMsg3 = "'object' is not Object: {\"__op\":\"Remove\",\"object\":123}";
       it(param3 + ' should call next("' + errorMsg3 +'")', function(){
 
         var req = {};
@@ -1144,7 +1144,7 @@ describe('parseable MiddleWare', function(){
       });
 
       var param4 = '{"field":{"__op": "Remove", "abc": 123}}';
-      var errorMsg4 = "no property 'objects': {\"__op\":\"Remove\",\"abc\":123}";
+      var errorMsg4 = "no property 'object': {\"__op\":\"Remove\",\"abc\":123}";
       it(param4 + ' should call next("' + errorMsg4 +'")', function(){
 
         var req = {};
@@ -1157,8 +1157,8 @@ describe('parseable MiddleWare', function(){
 
       });
 
-      var param5 = '{"field":{"__op": "Remove", "objects": [1,2,3] }}';
-      var errorMsg5 = "'objects' is not Object: [1,2,3]";
+      var param5 = '{"field":{"__op": "Remove", "object": [1,2,3] }}';
+      var errorMsg5 = "'object' is not Object: [1,2,3]";
       it(param4 + ' should call next("' + errorMsg5 +'")', function(){
 
         var req = {};
@@ -1337,7 +1337,7 @@ describe('parseable MiddleWare', function(){
         assert.equal(undefined,parseable(req,null,next));
       });
 
-      var param5 = {"field":{"sub_field1":{"__op": "Remove", "objects": {"a":1}},"sub_field2":{"__op": "Increment", "amount": 1234}}, "field2":{"__op": "AddUnique", "objects": [1,2,3]}};
+      var param5 = {"field":{"sub_field1":{"__op": "Remove", "object": {"a":1}},"sub_field2":{"__op": "Increment", "amount": 1234}}, "field2":{"__op": "AddUnique", "objects": [1,2,3]}};
       var expect5 = {"$pull":{"field.sub_field1":{"a":1}},"$inc":{"field.sub_field2":1234},"$addToSet":{"field2":{"$each":[1,2,3]}}};
       it(JSON.stringify(param5), function(){
         var req = {};
