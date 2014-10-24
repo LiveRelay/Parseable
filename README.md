@@ -69,8 +69,13 @@ The default value can be changed, e.g.:
  - AddUnique: add objects if not existed
 >        input: {"field":{"__op": "AddUnique", "objects": [1,2,3]}}
 >        output: {$addToSet:{"field":{$each:[1,2,3]}}}
- - Remove: remove objects from array field
->        input: {"field":{"__op": "Remove", "objects": [1,2,3]}}
+
+ - Remove: removes from an existing array all instances of a value or values that match a specified query
+>        input: {"field":{"__op": "Remove", "objects": {"a":1}}}
+>        output: {$pull:{"field":{"a":1}}}
+
+ - RemoveAll: remove objects from array field
+>        input: {"field":{"__op": "RemoveAll", "objects": [1,2,3]}}
 >        output: {$pullAll:{"field":[1,2,3]}}
 
  - Delete: delete a field
