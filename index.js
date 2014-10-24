@@ -36,6 +36,12 @@ var syncOperationParser = function(params){
   var _remove = function(field,operation){
     var value = {};
     value[field] = operation['objects'];
+    return [null,{$pull:value}];
+  }
+
+  var _removeAll = function(field,operation){
+    var value = {};
+    value[field] = operation['objects'];
     return [null,{$pullAll:value}];
   }
 
@@ -90,6 +96,10 @@ var syncOperationParser = function(params){
 
   if(operation['__op'] === 'Remove'){
     return _remove(field,operation);
+  }
+
+  if(operation['__op'] === 'RemoveAll'){
+    return _removeAll(field,operation);
   }
 
   if(operation['__op'] === 'Delete'){
@@ -180,6 +190,17 @@ var util = {
       }
 
       if(obj['__op'] === 'Remove'){
+        if(!obj.hasOwnProperty('objects')) return [false,'no property \'objects\': '+JSON.stringify(obj)];
+        if(! (obj['objects'] instanceof Object )) return [false,'\'objects\' is not Object: '+JSON.stringify(obj)];
+        if((obj['objects'] instanceof Array )) return [false,'\'objects\' is not Object: [' + obj['objects'] +']'];
+        
+        if(Object.getOwnPropertyNames(obj).length > 2){
+          return [false,'syntax error:'+JSON.stringify(obj)];
+        }
+        return [true,null];
+      }
+
+      if(obj['__op'] === 'RemoveAll'){
         if(!obj.hasOwnProperty('objects')) return [false,'no property \'objects\': '+JSON.stringify(obj)];
         if(! (obj['objects'] instanceof Array )) return [false,'\'objects\' is not Array: '+JSON.stringify(obj)];
         if(Object.getOwnPropertyNames(obj).length > 2){

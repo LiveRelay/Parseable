@@ -188,27 +188,28 @@ describe('operationParser', function(){
 
   });
 
+
   describe('Remove', function(){
-    var param1 = '{"field":{"__op": "Remove", "objects": [1,2,3]}}';
+    var param1 = {"field":{"__op": "Remove", "objects": {a:1}}};
     it(param1, function(){
       assert.equal(undefined,operationParser(param1,function(err,syntax){
         should.not.exist(err);
         should.exist(syntax);
-        assert.equal(JSON.stringify(syntax),JSON.stringify({$pullAll:{"field":[1,2,3]}}));
+        assert.equal(JSON.stringify(syntax),JSON.stringify({$pull:{"field":{'a':1}}}));
       }));
     });
 
-    var param2 = {"field":{"__op": "Remove", "objects": [1,2,3]}};
+    var param2 = '{"field":{"__op": "Remove", "objects": {"a":1}}}';
     it(param2, function(){
       assert.equal(undefined,operationParser(param2,function(err,syntax){
         should.not.exist(err);
         should.exist(syntax);
-        assert.equal(JSON.stringify(syntax),JSON.stringify({$pullAll:{"field":[1,2,3]}}));
+        assert.equal(JSON.stringify(syntax),JSON.stringify({$pull:{"field":{'a':1}}}));
       }));
     });
 
-    var param3 = '{"field":{"__op": "Remove", "objects": 123}}';
-    var errorMsg3 = "'objects' is not Array: {\"__op\":\"Remove\",\"objects\":123}";
+    var param3 = '{"field":{"__op": "Remove", "objects":[1,2,3] }}';
+    var errorMsg3 = "'objects' is not Object: [1,2,3]";
     it(param3  + " should return error", function(){
       assert.equal(undefined,operationParser(param3,function(err,syntax){
         should.exist(err);
@@ -219,6 +220,47 @@ describe('operationParser', function(){
 
     var param4 = '{"field":{"__op": "Remove", "abc": 123}}';
     var errorMsg4 = "no property 'objects': {\"__op\":\"Remove\",\"abc\":123}";
+    it(param4  + " should return error", function(){
+      assert.equal(undefined,operationParser(param4,function(err,syntax){
+        should.exist(err);
+        should.not.exist(syntax);
+        assert.equal(err, errorMsg4);
+      }));
+    });
+
+  });
+
+  describe('RemoveAll', function(){
+    var param1 = '{"field":{"__op": "RemoveAll", "objects": [1,2,3]}}';
+    it(param1, function(){
+      assert.equal(undefined,operationParser(param1,function(err,syntax){
+        should.not.exist(err);
+        should.exist(syntax);
+        assert.equal(JSON.stringify(syntax),JSON.stringify({$pullAll:{"field":[1,2,3]}}));
+      }));
+    });
+
+    var param2 = {"field":{"__op": "RemoveAll", "objects": [1,2,3]}};
+    it(param2, function(){
+      assert.equal(undefined,operationParser(param2,function(err,syntax){
+        should.not.exist(err);
+        should.exist(syntax);
+        assert.equal(JSON.stringify(syntax),JSON.stringify({$pullAll:{"field":[1,2,3]}}));
+      }));
+    });
+
+    var param3 = '{"field":{"__op": "RemoveAll", "objects": 123}}';
+    var errorMsg3 = "'objects' is not Array: {\"__op\":\"RemoveAll\",\"objects\":123}";
+    it(param3  + " should return error", function(){
+      assert.equal(undefined,operationParser(param3,function(err,syntax){
+        should.exist(err);
+        should.not.exist(syntax);
+        assert.equal(err, errorMsg3);
+      }));
+    });
+
+    var param4 = '{"field":{"__op": "RemoveAll", "abc": 123}}';
+    var errorMsg4 = "no property 'objects': {\"__op\":\"RemoveAll\",\"abc\":123}";
     it(param4  + " should return error", function(){
       assert.equal(undefined,operationParser(param4,function(err,syntax){
         should.exist(err);
@@ -1062,33 +1104,33 @@ describe('parseable MiddleWare', function(){
     });
 
     describe('Remove', function(){
-      var param1 = '{"field":{"__op": "Remove", "objects": [1,2,3]}}';
+      var param1 = '{"field":{"__op": "Remove", "objects": {"a":1} }}';
       it(param1, function(){
         var req = {};
         req.body = param1;
         var next = function(err){
           should.not.exist(err);
           should.exist(req.body);
-          assert.equal(JSON.stringify(req.body),JSON.stringify({$pullAll:{"field":[1,2,3]}}));
+          assert.equal(JSON.stringify(req.body),JSON.stringify({$pull:{"field":{"a":1}}}));
         };
         assert.equal(undefined,parseable(req,null,next));
       });
 
-      var param2 = {"field":{"__op": "Remove", "objects": [1,2,3]}};
+      var param2 = {"field":{"__op": "Remove", "objects": {"a":1} }};
       it(param2, function(){
         var req = {};
         req.body = param2;
         var next = function(err){
           should.not.exist(err);
           should.exist(req.body);
-          assert.equal(JSON.stringify(req.body),JSON.stringify({$pullAll:{"field":[1,2,3]}}));
+          assert.equal(JSON.stringify(req.body),JSON.stringify({$pull:{"field":{"a":1}}}));
         };
         assert.equal(undefined,parseable(req,null,next));
 
       });
 
       var param3 = '{"field":{"__op": "Remove", "objects": 123}}';
-      var errorMsg3 = "'objects' is not Array: {\"__op\":\"Remove\",\"objects\":123}";
+      var errorMsg3 = "'objects' is not Object: {\"__op\":\"Remove\",\"objects\":123}";
       it(param3 + ' should call next("' + errorMsg3 +'")', function(){
 
         var req = {};
@@ -1103,6 +1145,75 @@ describe('parseable MiddleWare', function(){
 
       var param4 = '{"field":{"__op": "Remove", "abc": 123}}';
       var errorMsg4 = "no property 'objects': {\"__op\":\"Remove\",\"abc\":123}";
+      it(param4 + ' should call next("' + errorMsg4 +'")', function(){
+
+        var req = {};
+        req.body = param4;
+        var next = function(err){
+          should.exist(err);
+          assert.equal(err, errorMsg4);
+        };
+        assert.equal(undefined,parseable(req,null,next));
+
+      });
+
+      var param5 = '{"field":{"__op": "Remove", "objects": [1,2,3] }}';
+      var errorMsg5 = "'objects' is not Object: [1,2,3]";
+      it(param4 + ' should call next("' + errorMsg5 +'")', function(){
+
+        var req = {};
+        req.body = param5;
+        var next = function(err){
+          should.exist(err);
+          assert.equal(err, errorMsg5);
+        };
+        assert.equal(undefined,parseable(req,null,next));
+
+      });
+    });
+
+    describe('RemoveAll', function(){
+      var param1 = '{"field":{"__op": "RemoveAll", "objects": [1,2,3]}}';
+      it(param1, function(){
+        var req = {};
+        req.body = param1;
+        var next = function(err){
+          should.not.exist(err);
+          should.exist(req.body);
+          assert.equal(JSON.stringify(req.body),JSON.stringify({$pullAll:{"field":[1,2,3]}}));
+        };
+        assert.equal(undefined,parseable(req,null,next));
+      });
+
+      var param2 = {"field":{"__op": "RemoveAll", "objects": [1,2,3]}};
+      it(param2, function(){
+        var req = {};
+        req.body = param2;
+        var next = function(err){
+          should.not.exist(err);
+          should.exist(req.body);
+          assert.equal(JSON.stringify(req.body),JSON.stringify({$pullAll:{"field":[1,2,3]}}));
+        };
+        assert.equal(undefined,parseable(req,null,next));
+
+      });
+
+      var param3 = '{"field":{"__op": "RemoveAll", "objects": 123}}';
+      var errorMsg3 = "'objects' is not Array: {\"__op\":\"RemoveAll\",\"objects\":123}";
+      it(param3 + ' should call next("' + errorMsg3 +'")', function(){
+
+        var req = {};
+        req.body = param3;
+        var next = function(err){
+          should.exist(err);
+          assert.equal(err, errorMsg3);
+        };
+        assert.equal(undefined,parseable(req,null,next));
+
+      });
+
+      var param4 = '{"field":{"__op": "RemoveAll", "abc": 123}}';
+      var errorMsg4 = "no property 'objects': {\"__op\":\"RemoveAll\",\"abc\":123}";
       it(param4 + ' should call next("' + errorMsg4 +'")', function(){
 
         var req = {};
