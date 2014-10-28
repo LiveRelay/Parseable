@@ -115,6 +115,10 @@ Multiple Operation:
 >        input: {"field":{"__op": "Delete"}}
 >        output: {$unset:{"field":""}}
 
+ - Set: replaces the value of a field to the specified value.
+>        input: {"field":123}
+>        output: {$set:{field:123}}
+
 ### Parseable.whereParser:
 ```javascript
   var whereParser = require('parseable').whereParser; 
