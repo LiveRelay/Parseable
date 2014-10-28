@@ -1,6 +1,6 @@
 {
   "name": "parseable",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Parseable allows NodeJS developers to build REST API applications with client-driven (ad hoc, dynamic) queries similar to noBackend platforms.",
   "author": "Fengyi Tsai",
   "main": "index.js",
@@ -19,7 +19,7 @@
     }
   ],
   "scripts": {
-    "test": "mocha test/*.js"
+    "test": "mocha -w ./ test/*.js"
   },
   "dependencies": {
     "mocha": "^1.21.4",

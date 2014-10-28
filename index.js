@@ -50,6 +50,11 @@ var syncOperationParser = function(params){
     value[field] = '';
     return [null,{$unset:value}];
   }
+
+  var _set = function(field){
+    return [null,{$set:field}];
+  }
+
   // parse string into object
   if(typeof(params) !== 'object'){
     try{
@@ -71,7 +76,7 @@ var syncOperationParser = function(params){
     try{
       operation = JSON.parse(operation);
     }catch(e){
-      return ['SyntaxError', null];
+      return _set(params);
     }
   }
 
@@ -80,7 +85,7 @@ var syncOperationParser = function(params){
     return [_isOpration[1],null];
   }
 
-  if(!operation.hasOwnProperty('__op')) return ['no property \'__op\'', null];
+  if(!operation.hasOwnProperty('__op')) return _set(params);
 
   if(operation['__op'] === 'Increment'){
     return _increment(field,operation);

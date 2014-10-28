@@ -291,6 +291,38 @@ describe('operationParser', function(){
     });
   });
 
+  describe('Set', function(){
+    var param1 = '{"field":123}';
+    var result1 = {"$set":{"field":123}};
+    it(param1, function(){
+      assert.equal(undefined,operationParser(param1,function(err,syntax){
+        should.not.exist(err);
+        should.exist(syntax);
+        assert.equal(JSON.stringify(syntax),JSON.stringify(result1));
+      }));
+    });
+
+    var param2 = {"field":123};
+    var result2 = {"$set":{"field":123}};
+    it(param2, function(){
+      assert.equal(undefined,operationParser(param2,function(err,syntax){
+        should.not.exist(err);
+        should.exist(syntax);
+        assert.equal(JSON.stringify(syntax),JSON.stringify(result2));
+      }));
+    });
+
+    var param3 = {"field":{"subfield":123}};
+    var result3 = {"$set":{"field.subfield":123}};
+    it(param3, function(){
+      assert.equal(undefined,operationParser(param3,function(err,syntax){
+        should.not.exist(err);
+        should.exist(syntax);
+        assert.equal(JSON.stringify(syntax),JSON.stringify(result3));
+      }));
+    });
+  });
+
   describe('Multi Operation', function(){
     var param1 = '{"field":{"__op": "AddUnique", "objects": [1,2,3]}, "field2":{"__op": "AddUnique", "objects": [4,5,6]}}';
     var expect1 = {"$addToSet":{"field":{"$each":[1,2,3]},"field2":{"$each":[4,5,6]}}};
@@ -310,6 +342,16 @@ describe('operationParser', function(){
         should.exist(err);
         should.not.exist(syntax);
         assert.equal(err,errorMsg2);
+      }));
+    });
+
+    var param3 = {"field":{"subfield":123}, "field2":{"__op": "AddUnique", "objects": [4,5,6]}};
+    var expect3 = {"$set":{"field.subfield":123},"$addToSet":{"field2":{"$each":[4,5,6]}}};
+    it(param3, function(){
+      assert.equal(undefined,operationParser(param3,function(err,syntax){
+        should.not.exist(err);
+        should.exist(syntax);
+        assert.equal(JSON.stringify(syntax),JSON.stringify(expect3));
       }));
     });
   });
