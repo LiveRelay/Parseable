@@ -142,7 +142,7 @@ var util = {
   },
     //return result and error message
   isOperator : function(obj){
-    var operators = ['$gt','$gte','$in','$lt','$lte','$ne','$nin','$or','$nor','$or','$not','$in','$nin','$exist','type','$mod','$regex','$text','$where','$all','$elemMatch','$size','$geoWithin','$geoIntersects','$near','$nearSphere','$geometry','$maxDistance','$center','$centerSphere','$box','$polygon','$uniqueDocs','$options'];
+    var operators = ['$gt','$gte','$in','$lt','$lte','$ne','$nin','$or','$nor','$or','$not','$in','$nin','$exists','$type','$mod','$regex','$text','$where','$all','$elemMatch','$size','$geoWithin','$geoIntersects','$near','$nearSphere','$geometry','$maxDistance','$center','$centerSphere','$box','$polygon','$uniqueDocs','$options'];
     var operatorCount = 0;
     var notOperatorArray = [];
     var keyCount = 0;
