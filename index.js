@@ -490,6 +490,76 @@ var operationMiddleware = function(req, res, next){
   }
 }
 
+var bodyFilterMiddleware = function(req, res, next){
+  if(req.body){
+    if(typeof(req.body) !== 'object'){
+      try{
+        req.body = JSON.parse(req.body);
+      }catch(e){
+        return next('SyntaxError');
+      }
+    }
+  }
+
+  if(req.body && Object.getOwnPropertyNames(req.body).length >= 0){
+    var _filterNames = ['where','sort','limit','skip','keys'];
+    for (var _index in _filterNames){
+      if(!req.body.hasOwnProperty(_filterNames[_index])){
+        if(_filterNames[_index] === 'limit'){
+          req.body[_filterNames[_index]] = defaultValues.limit;
+        }else if(_filterNames[_index] === 'skip'){
+          req.body[_filterNames[_index]] = 0;
+        }else if(_filterNames[_index] === 'keys'){
+          req.body[_filterNames[_index]] = "";
+        }else{
+          req.body[_filterNames[_index]] = {};
+        }
+      }
+    }
+
+    // if(Object.getOwnPropertyNames(req.query).length > 4){
+    //   var _unknownProperties = [];
+    //   for (var _property in req.query){
+    //     if(req.query.hasOwnProperty(_property) && _filterNames.indexOf(_property) === -1){
+    //       _unknownProperties.push(_property);
+    //       return next('unknown properties:'+_unknownProperties);
+    //     }
+    //   }
+    // }
+
+    whereParser(req.body.where,function(err,result){
+      if(err) return next(err+': where');
+      req.body.where = result;
+      sortParser(req.body.sort,function(err,result){
+        if(err) return next(err +': sort');
+        req.body.sort = result;
+        limitParser(req.body.limit,function(err,result){
+          if(err) return next(err +': limit');
+          req.body.limit = result;
+
+          skipParser(req.body.skip,function(err,result){
+            if(err) return next(err +': skip');
+            req.body.skip = result;
+
+            keysParser(req.body.keys,function(err,result){
+              if(err) return next(err +': keys');
+              req.body.keys = result;
+              if(arguments[3]){
+                return arguments[3](req, res, next);
+              }else{
+                return next();
+              }
+            });
+          });
+        });
+      });
+    });
+
+  }else{
+    return next();
+  }
+}
+
 var filterMiddleware = function(req, res, next){
   if(req.query){
     if(typeof(req.query) !== 'object'){
@@ -565,6 +635,7 @@ var parseableMiddleware = function(req, res, next){
 }
 
 exports.operationMiddleware = operationMiddleware;
+exports.bodyFilterMiddleware = bodyFilterMiddleware;
 exports.filterMiddleware = filterMiddleware;
 exports.operationParser = operationParser;
 exports.whereParser = whereParser;
