@@ -229,7 +229,7 @@ var util = {
   isMergeable: function(obj,filter){
     var _isMergeable =[false,null];
     var _isObject =(function(v){
-      if(typeof(v) === 'object' && Object.getOwnPropertyNames(v).length===0){
+      if(v && typeof(v) === 'object' && Object.getOwnPropertyNames(v).length===0){
         return  [false,'contain empty object: '+JSON.stringify(v)];
       }
       return [typeof(v) === 'object' && ! (v instanceof Array), null];
