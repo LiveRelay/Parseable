@@ -166,7 +166,7 @@ var util = {
     }
   },
   isOperation : function(obj){
-    if(obj.hasOwnProperty('__op')){
+    if(obj && obj.hasOwnProperty('__op')){
       if(obj['__op'] === 'Increment'){
         if(!obj.hasOwnProperty('amount')) return [false,'no property \'amount\': '+JSON.stringify(obj)];
         if(typeof(obj['amount']) !== 'number') return [false,'\'amount\' is not number: '+JSON.stringify(obj)];
