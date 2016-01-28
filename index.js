@@ -340,7 +340,8 @@ var sortParser = function(params,callback){
         return callback('SyntaxError');
       }
     }catch(e){
-      return callback('SyntaxError');
+      // If not an object and failed to parse, just continue with the sort as the raw value
+      return callback(null, params);
     }
   }
   

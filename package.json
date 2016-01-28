@@ -1,6 +1,6 @@
 {
   "name": "parseable",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Parseable allows NodeJS developers to build REST API applications with client-driven (ad hoc, dynamic) queries similar to noBackend platforms.",
   "author": "Fengyi Tsai",
   "main": "index.js",
